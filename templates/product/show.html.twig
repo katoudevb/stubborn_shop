@@ -1,0 +1,31 @@
+{# templates/product/show.html.twig #}
+
+<h1>{{ product.name }}</h1>
+
+{# Image du produit #}
+{% if product.image %}
+	<img src="{{ asset('uploads/products/' ~ product.image) }}" alt="{{ product.name }}" style="max-width:300px;">
+{% else %}
+	<p>Aucune image disponible</p>
+{% endif %}
+
+<p>
+	<strong>Prix :</strong>
+	{{ product.price }}
+	€</p>
+
+{# Sélecteur de taille #}
+<form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}">
+	<label for="size">Taille :</label>
+	<select id="size" name="size" required>
+		<option value="">-- Choisissez une taille --</option>
+		<option value="S">S</option>
+		<option value="M">M</option>
+		<option value="L">L</option>
+		<option value="XL">XL</option>
+	</select>
+
+	<button type="submit">Ajouter au panier</button>
+</form>
+
+<a href="{{ path('app_product') }}">← Retour à la liste des produits</a>

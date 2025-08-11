@@ -1,0 +1,23 @@
+<h1>Bienvenue chez
+	{{ companyInfo.name }}</h1>
+
+<p>Adresse :
+	{{ companyInfo.address }}</p>
+<p>Téléphone :
+	{{ companyInfo.phone }}</p>
+<p>Email :
+	<a href="mailto:{{ companyInfo.email }}">{{ companyInfo.email }}</a>
+</p>
+
+<h2>Produits mis en avant</h2>
+
+<ul>
+	{% for product in featuredProducts %}
+		<li>{{ product.name }}
+			-
+			{{ product.price }}
+			€</li>
+	{% else %}
+		<li>Aucun produit mis en avant actuellement.</li>
+	{% endfor %}
+</ul>
