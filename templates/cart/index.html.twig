@@ -1,0 +1,44 @@
+<h1>Mon panier</h1>
+
+<table>
+	<thead>
+		<tr>
+			<th>Produit</th>
+			<th>Quantité</th>
+			<th>Prix unitaire</th>
+			<th>Total</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in cartItems %}
+			<tr>
+				<td>{{ item.product.name }}</td>
+				<td>{{ item.quantity }}</td>
+				<td>{{ item.product.price }}
+					€</td>
+				<td>{{ item.product.price * item.quantity }}
+					€</td>
+				<td>
+					<form method="post" action="{{ path('app_cart_remove', {'id': item.id}) }}">
+						<button type="submit">Supprimer</button>
+					</form>
+				</td>
+			</tr>
+		{% else %}
+			<tr>
+				<td colspan="5">Votre panier est vide.</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<p>
+	<strong>Total :
+		{{ total }}
+		€</strong>
+</p>
+
+<a href="{{ path('app_order_finalize') }}">
+	<button>Finaliser ma commande</button>
+</a>
