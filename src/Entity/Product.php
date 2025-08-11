@@ -24,6 +24,9 @@ class Product
     #[ORM\Column]
     private ?bool $featured = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
     /**
      * @var Collection<int, Stock>
      */
@@ -79,6 +82,18 @@ class Product
     public function setFeatured(bool $featured): static
     {
         $this->featured = $featured;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }
@@ -141,5 +156,14 @@ class Product
         }
 
         return $this;
+    }
+
+    public function getTotalStock(): int
+    {
+        $total = 0;
+        foreach ($this->stocks as $stock) {
+            $total += $stock->getQuantity();  // suppose que Stock a getQuantity()
+        }
+        return $total;
     }
 }

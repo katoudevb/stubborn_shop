@@ -9,7 +9,7 @@ use App\Repository\ProductRepository;
 
 final class HomeController extends AbstractController
 {
-    #[Route('/home', name: 'app_home')]
+    #[Route('/', name: 'app_home')]
     public function index(ProductRepository $productRepository): Response
     {
         // Récupérer les produits mis en avant (ex: avec un champ 'featured' = true)
@@ -17,10 +17,10 @@ final class HomeController extends AbstractController
 
         // Données statiques infos société (à adapter)
         $companyInfo = [
-            'name' => 'Nom de la Société',
-            'address' => '123 rue Exemple, Ville',
-            'phone' => '01 23 45 67 89',
-            'email' => 'contact@societe.fr',
+            'name' => 'Stubborn',
+            'address' => 'Piccadilly Circus, London W1J 0DA, Royaume-Uni',
+            'email' => 'stubborn@blabla.com',
+            'slogan' => "Don't compromise on your look"
         ];
 
         return $this->render('home/index.html.twig', [
