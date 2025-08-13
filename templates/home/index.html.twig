@@ -1,21 +1,37 @@
-<h1>Bienvenue chez
-	{{ companyInfo.name }}</h1>
+{% extends 'base.html.twig' %}
 
-<p>Adresse :
-	{{ companyInfo.address }}</p>
-<p>Email :
-	<a href="mailto:{{ companyInfo.email }}">{{ companyInfo.email }}</a>
-</p>
+{% block title %}Accueil -
+	{{ companyInfo.name }}
+{% endblock %}
 
-<h2>Produits mis en avant</h2>
+{% block body %}
+	<h1>Bienvenue chez
+		{{ companyInfo.name }}</h1>
 
-<ul>
-	{% for product in featuredProducts %}
-		<li>{{ product.name }}
-			-
-			{{ product.price }}
-			€</li>
-	{% else %}
-		<li>Aucun produit mis en avant actuellement.</li>
-	{% endfor %}
-</ul>
+	<p>Adresse :
+		{{ companyInfo.address }}</p>
+	<p>Email :
+		<a href="mailto:{{ companyInfo.email }}">{{ companyInfo.email }}</a>
+	</p>
+	<p>Slogan :
+		{{ companyInfo.slogan }}</p>
+
+	<h2>Produits mis en avant</h2>
+	<ul>
+		{% for product in featuredProducts %}
+			<li>
+				{{ product.name }}
+				-
+				{{ product.price }}
+				€
+
+				{# Affiche le bouton "Voir" seulement si l'utilisateur est connecté #}
+				{% if app.user %}
+					<a href="{{ path('product_show', {'id': product.id}) }}">Voir</a>
+				{% endif %}
+			</li>
+		{% else %}
+			<li>Aucun produit mis en avant actuellement.</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

@@ -2,22 +2,21 @@
 
 namespace App\Service;
 
-use Stripe\Stripe;
+use App\Factory\StripePaymentIntentFactory;
 use Stripe\PaymentIntent;
 
 class StripeServices
 {
-    private $secretKey;
+    private StripePaymentIntentFactory $paymentIntentFactory;
 
-    public function __construct(string $stripeSecretKey)
+    public function __construct(StripePaymentIntentFactory $paymentIntentFactory)
     {
-        $this->secretKey = $stripeSecretKey;
-        Stripe::setApiKey($this->secretKey);
+        $this->paymentIntentFactory = $paymentIntentFactory;
     }
 
     public function createPaymentIntent(int $amount, string $currency = 'eur'): PaymentIntent
     {
-        return PaymentIntent::create([
+        return $this->paymentIntentFactory->create([
             'amount' => $amount,
             'currency' => $currency,
             'payment_method_types' => ['card'],

@@ -39,6 +39,9 @@ final class ProductController extends AbstractController
     #[Route('/product/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): Response
     {
+        // Sécurisation : seuls les utilisateurs connectés peuvent voir un produit
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         return $this->render('product/show.html.twig', [
             'product' => $product,
         ]);

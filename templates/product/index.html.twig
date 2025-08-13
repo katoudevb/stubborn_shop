@@ -1,25 +1,34 @@
-<h1>Liste des produits</h1>
+{% extends 'base.html.twig' %}
 
-<form method="get" action="{{ path('app_product') }}">
-	<label>Prix min :</label>
-	<input type="number" step="0.01" name="min_price" value="{{ minPrice }}"/>
+{% block title %}Boutique
+{% endblock %}
 
-	<label>Prix max :</label>
-	<input type="number" step="0.01" name="max_price" value="{{ maxPrice }}"/>
+{% block body %}
+	<h1>Boutique</h1>
 
-	<button type="submit">Filtrer</button>
-</form>
+	<form method="get" action="{{ path('app_product') }}">
+		<label for="min_price">Prix min :</label>
+		<input type="number" step="0.01" name="min_price" id="min_price" value="{{ minPrice }}">
 
-<ul>
-	{% for product in products %}
-		<li>
-			{{ product.name }}
-			-
-			{{ product.price }}
-			€
-			<a href="{{ path('app_product_show', {'id': product.id}) }}">Voir</a>
-		</li>
-	{% else %}
-		<li>Aucun produit trouvé</li>
-	{% endfor %}
-</ul>
+		<label for="max_price">Prix max :</label>
+		<input type="number" step="0.01" name="max_price" id="max_price" value="{{ maxPrice }}">
+
+		<button type="submit">Filtrer</button>
+	</form>
+
+	<ul>
+		{% for product in products %}
+			<li>
+				{{ product.name }}
+				-
+				{{ product.price }}
+				€
+				{% if app.user %}
+					<a href="{{ path('app_product_show', {'id': product.id}) }}">Voir</a>
+				{% endif %}
+			</li>
+		{% else %}
+			<li>Aucun produit trouvé.</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
