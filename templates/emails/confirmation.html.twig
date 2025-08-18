@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Confirmez votre email</title>
+	</head>
+	<body>
+		<h2>Bonjour
+			{{ user.name }},</h2>
+
+		<p>Merci pour votre inscription sur notre site.</p>
+
+		<p>
+			Veuillez confirmer votre adresse email en cliquant sur le lien ci-dessous :<br>
+			<a href="{{ signedUrl }}">Confirmer mon adresse email</a>
+		</p>
+
+		<p>Ce lien expirera le
+			{{ expiresAt|date('d/m/Y H:i') }}.</p>
+
+		<p>Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
+
+		<p>À bientôt,<br>L’équipe du site</p>
+	</body>
+</html>

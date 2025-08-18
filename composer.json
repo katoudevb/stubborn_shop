@@ -13,6 +13,7 @@
         "doctrine/orm": "^3.5",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.2",
+        "stripe/stripe-php": "^17.5",
         "symfony/asset": "7.3.*",
         "symfony/asset-mapper": "7.3.*",
         "symfony/console": "7.3.*",
@@ -42,6 +43,7 @@
         "symfony/validator": "7.3.*",
         "symfony/web-link": "7.3.*",
         "symfony/yaml": "7.3.*",
+        "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },
@@ -80,11 +82,16 @@
             "assets:install %PUBLIC_DIR%": "symfony-cmd",
             "importmap:install": "symfony-cmd"
         },
+        "auto-test": [
+            "php bin/phpunit"
+        ],
         "post-install-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "@auto-test"
         ],
         "post-update-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "@auto-test"
         ]
     },
     "conflict": {
@@ -97,6 +104,8 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "php-mock/php-mock-phpunit": "*",
         "phpunit/phpunit": "^12.3",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",

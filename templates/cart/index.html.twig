@@ -1,0 +1,52 @@
+<h1>Mon panier</h1>
+
+{% if cartItems is not empty %}
+	<table>
+		<thead>
+			<tr>
+				<th>Produit</th>
+				<th>Quantité</th>
+				<th>Prix unitaire</th>
+				<th>Total</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in cartItems %}
+				<tr>
+					<td>{{ item.product.name }}</td>
+					<td>{{ item.quantity }}</td>
+					<td>{{ item.product.price|number_format(2, ',', ' ') }}
+						€</td>
+					<td>{{ (item.product.price * item.quantity)|number_format(2, ',', ' ') }}
+						€</td>
+					<td>
+						<form method="post" action="{{ path('app_cart_remove', {'id': item.id}) }}" style="display:inline;">
+							<input type="hidden" name="_token" value="{{ csrf_token('remove_cart_item_' ~ item.id) }}">
+							<button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">Supprimer</button>
+						</form>
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<p>
+		<strong>Total :
+			{{ total|number_format(2, ',', ' ') }}
+			€</strong>
+	</p>
+
+	<form method="post" action="{{ path('app_cart_checkout') }}">
+		<input type="hidden" name="_token" value="{{ csrf_token('checkout_cart') }}">
+		<button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir finaliser votre commande ?');">
+			Finaliser ma commande
+		</button>
+	</form>
+{% else %}
+	<p>Votre panier est vide.</p>
+{% endif %}
+
+<p>
+	<a href="{{ path('app_products') }}">Continuer mes achats</a>
+</p>

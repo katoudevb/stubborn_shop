@@ -1,0 +1,39 @@
+<h1>{{ product.name }}</h1>
+<p>Prix :
+	{{ product.price }}€</p>
+
+{# Lien retour vers la liste des produits #}
+<p>
+	<a href="{{ path('app_products') }}">Retour aux produits</a>
+</p>
+
+{# Flash messages #}
+{% for message in app.flashes('success') %}
+	<div class="flash-success" style="color: green; font-weight: bold; margin-bottom: 1em;">
+		{{ message }}
+	</div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+	<div class="flash-error" style="color: red; font-weight: bold; margin-bottom: 1em;">
+		{{ message }}
+	</div>
+{% endfor %}
+
+{# Affichage des tailles et stock disponible (optionnel pour le devoir) #}
+{% if availableSizes is not empty %}
+	<form method="post">
+		<label for="size">Choisir la taille :</label>
+		<select name="size" id="size" required>
+			{% for size in availableSizes %}
+				{% set stockAvailable = product.getStockBySize(size) - (app.session.get('cart')[product.id][size]|default(0)) %}
+				<option value="{{ size }}">
+					{{ size }}
+					({{ stockAvailable }}
+					en stock)
+				</option>
+			{% endfor %}
+		</select>
+
+		<button type="submit">Ajouter au panier</button>
+	</form>
+{% endif %}

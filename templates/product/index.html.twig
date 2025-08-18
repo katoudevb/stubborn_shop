@@ -1,0 +1,61 @@
+<h1>Produits</h1>
+
+{# Formulaire de filtrage dynamique par prix #}
+<form method="get" action="{{ path('app_products') }}" style="margin-bottom: 1em;">
+	<label for="minPrice">Prix minimum :</label>
+	<input type="number" id="minPrice" name="price_range_min" value="{{ selectedMin|default('') }}" min="0" step="0.01">
+
+	<label for="maxPrice">Prix maximum :</label>
+	<input type="number" id="maxPrice" name="price_range_max" value="{{ selectedMax|default('') }}" min="0" step="0.01">
+
+	<button type="submit">Filtrer</button>
+	<a href="{{ path('app_products') }}" style="margin-left: 1em;">Réinitialiser</a>
+</form>
+
+{# Préparer les valeurs sélectionnées côté Twig #}
+{% if selectedRange %}
+	{% set parts = selectedRange|split('-') %}
+	{% set selectedMin = parts[0] %}
+	{% set selectedMax = parts[1] %}
+{% endif %}
+
+{# Lien vers l’accueil #}
+<p>
+	<a href="{{ path('app_home') }}">Retour à l’accueil</a>
+</p>
+
+{# Affichage des produits #}
+<ul style="list-style: none; padding: 0;">
+	{% for product in products %}
+		<li
+			style="margin-bottom: 2em; border: 1px solid #ccc; padding: 1em; border-radius: 5px;">
+			{# Image du produit #}
+			<img
+			src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 150px; display: block; margin-bottom: 0.5em;">
+
+			{# Nom et prix #}
+			<strong>{{ product.name }}</strong>
+			-
+			{{ product.price }}€
+
+			{# Bouton "Voir" #}
+			<div style="margin-top: 0.5em;">
+				<a href="{{ path('app_product_show', {'id': product.id}) }}">
+					<button type="button">Voir</button>
+				</a>
+			</div>
+		</li>
+	{% else %}
+		<li>Aucun produit trouvé pour cette fourchette de prix.</li>
+	{% endfor %}
+</ul>
+
+{# Nombre total d'articles dans le panier (optionnel) #}
+{% set cart = app.session.get('cart', {}) %}
+{% set totalQuantity = cart|reduce((carry, item) => carry + item, 0) %}
+{% if totalQuantity > 0 %}
+	<p style="margin-top: 1em; font-weight: bold;">
+		Articles dans le panier :
+		{{ totalQuantity }}
+	</p>
+{% endif %}
