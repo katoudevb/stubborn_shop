@@ -1,10 +1,15 @@
 parameters:
     stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+    uploads_directory: '%kernel.project_dir%/public/uploads'
 
 services:
-    App\Factory\StripePaymentIntentFactory: ~  # autowire et autoconfigure par défaut
+    # Factory Stripe
+    App\Factory\StripePaymentIntentFactory:
+        arguments:
+            $stripeSecretKey: '%stripe_secret_key%'
 
-    App\Service\StripeServices:
+    # Service Stripe
+    App\Service\StripeService:
         arguments:
             $paymentIntentFactory: '@App\Factory\StripePaymentIntentFactory'
 

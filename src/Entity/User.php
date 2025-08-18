@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -42,7 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $deliveryAddress = null;
 
     #[ORM\Column]
-    private ?bool $isVerified = null;
+    private bool $isVerified = false;
 
     /**
      * @var Collection<int, Cart>
@@ -50,6 +49,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Cart::class, mappedBy: 'user')]
     private Collection $carts;
 
+    /**
+     * Mot de passe en clair (non persisté)
+     */
     #[Assert\NotBlank(message: 'Le mot de passe ne peut pas être vide')]
     #[Assert\Length(min: 6, minMessage: 'Le mot de passe doit contenir au moins 6 caractères')]
     private ?string $plainPassword = null;
@@ -72,45 +74,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -119,7 +103,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -131,25 +114,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPlainPassword(?string $plainPassword): static
     {
         $this->plainPassword = $plainPassword;
-
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
-    public function __serialize(): array
-    {
-        $data = (array) $this;
-        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-
-        return $data;
-    }
-
-    #[\Deprecated]
     public function eraseCredentials(): void
     {
-        // @deprecated, to be removed when upgrading to Symfony 8
+        $this->plainPassword = null;
     }
 
     public function getName(): ?string
@@ -160,7 +130,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -172,11 +141,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDeliveryAddress(?string $deliveryAddress): static
     {
         $this->deliveryAddress = $deliveryAddress;
-
         return $this;
     }
 
-    public function isVerified(): ?bool
+    public function isVerified(): bool
     {
         return $this->isVerified;
     }
@@ -184,13 +152,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Cart>
-     */
     public function getCarts(): Collection
     {
         return $this->carts;
@@ -202,19 +166,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->carts->add($cart);
             $cart->setUser($this);
         }
-
         return $this;
     }
 
     public function removeCart(Cart $cart): static
     {
-        if ($this->carts->removeElement($cart)) {
-            // set the owning side to null (unless already changed)
-            if ($cart->getUser() === $this) {
-                $cart->setUser(null);
-            }
+        if ($this->carts->removeElement($cart) && $cart->getUser() === $this) {
+            $cart->setUser(null);
         }
-
         return $this;
     }
 }

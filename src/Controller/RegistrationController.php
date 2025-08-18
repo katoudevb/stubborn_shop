@@ -2,23 +2,24 @@
 
 namespace App\Controller;
 
-use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Security\LoginFormAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 final class RegistrationController extends AbstractController
 {
-    #[Route('/registration', name: 'app_registration')]
-    public function registration(
+    #[Route('/register', name: 'app_register')]
+    public function register(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
@@ -26,11 +27,13 @@ final class RegistrationController extends AbstractController
         MailerInterface $mailer
     ): Response {
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $user->setIsVerified(false); // initialisation
 
+        $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Hash du mot de passe
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -43,7 +46,7 @@ final class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Génération du lien de confirmation sécurisé
+            // Génération du lien de confirmation
             $signatureComponents = $verifyEmailHelper->generateSignature(
                 'app_verify_email',
                 $user->getId(),
@@ -73,5 +76,44 @@ final class RegistrationController extends AbstractController
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    #[Route('/verify/email', name: 'app_verify_email')]
+    public function verifyUserEmail(
+        Request $request,
+        VerifyEmailHelperInterface $verifyEmailHelper,
+        EntityManagerInterface $entityManager,
+        UserAuthenticatorInterface $userAuthenticator,
+        LoginFormAuthenticator $authenticator
+    ): Response {
+        $id = $request->get('id');
+
+        if (!$id) {
+            return $this->redirectToRoute('app_register');
+        }
+
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return $this->redirectToRoute('app_register');
+        }
+
+        try {
+            $verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
+            $user->setIsVerified(true);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre adresse email a été vérifiée avec succès !');
+
+            // Authentification automatique et redirection vers la page d’accueil
+            return $userAuthenticator->authenticateUser(
+                $user,
+                $authenticator,
+                $request
+            );
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Le lien de vérification est invalide ou a expiré.');
+            return $this->redirectToRoute('app_register');
+        }
     }
 }

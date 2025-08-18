@@ -16,19 +16,19 @@
 		<nav>
 			<ul>
 				<li>
-					<a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
+					<a href="{{ path('app_home') }}" class="{{ is_active_route('app_home') ? 'active' : '' }}">
 						Accueil
 					</a>
 				</li>
 
 				{% if app.user %}
 					<li>
-						<a href="{{ path('app_shop') }}" class="{{ app.request.attributes.get('_route') starts with 'app_shop' ? 'active' : '' }}">
+						<a href="{{ path('app_shop') }}" class="{{ is_active_route('app_shop', true) ? 'active' : '' }}">
 							Boutique
 						</a>
 					</li>
 					<li>
-						<a href="{{ path('app_cart') }}" class="{{ app.request.attributes.get('_route') starts with 'app_cart' ? 'active' : '' }}">
+						<a href="{{ path('app_cart') }}" class="{{ is_active_route('app_cart', true) ? 'active' : '' }}">
 							Panier
 						</a>
 					</li>
@@ -39,12 +39,12 @@
 					</li>
 				{% else %}
 					<li>
-						<a href="{{ path('app_register') }}" class="{{ app.request.attributes.get('_route') == 'app_register' ? 'active' : '' }}">
+						<a href="{{ path('app_register') }}" class="{{ is_active_route('app_register') ? 'active' : '' }}">
 							S’inscrire
 						</a>
 					</li>
 					<li>
-						<a href="{{ path('app_login') }}" class="{{ app.request.attributes.get('_route') == 'app_login' ? 'active' : '' }}">
+						<a href="{{ path('app_login') }}" class="{{ is_active_route('app_login') ? 'active' : '' }}">
 							Se connecter
 						</a>
 					</li>

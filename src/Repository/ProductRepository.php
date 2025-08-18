@@ -6,9 +6,6 @@ use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Product>
- */
 class ProductRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,45 +13,73 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function findByPriceRange(array $criteria)
+    /**
+     * Retourne les produits filtrés par une fourchette de prix (ex: "10-29")
+     */
+    public function findByPriceRange(?string $priceRange)
     {
         $qb = $this->createQueryBuilder('p');
 
-        if (isset($criteria['minPrice'])) {
+        if ($priceRange) {
+            [$minPrice, $maxPrice] = explode('-', $priceRange);
             $qb->andWhere('p.price >= :minPrice')
-                ->setParameter('minPrice', $criteria['minPrice']);
-        }
-        if (isset($criteria['maxPrice'])) {
-            $qb->andWhere('p.price <= :maxPrice')
-                ->setParameter('maxPrice', $criteria['maxPrice']);
+                ->andWhere('p.price <= :maxPrice')
+                ->setParameter('minPrice', (float)$minPrice)
+                ->setParameter('maxPrice', (float)$maxPrice);
         }
 
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * Vérifie toutes les règles du devoir :
+     * 1. Stock ≥ 2 pour chaque taille
+     * 2. Prix cohérent (identique pour toutes les tailles)
+     * 3. Retourne la liste des produits mis en avant
+     *
+     * @return array Tableau des messages d'erreur et produits mis en avant
+     */
+    public function validateProducts(): array
+    {
+        $products = $this->findAll();
+        $errors = [];
+        $featuredProducts = [];
 
-    //    /**
-    //     * @return Product[] Returns an array of Product objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+        $sizes = ['S', 'M', 'L', 'XL'];
 
-    //    public function findOneBySomeField($value): ?Product
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        foreach ($products as $product) {
+            // Vérification stock
+            $productSizes = [];
+            foreach ($product->getStocks() as $stock) {
+                $productSizes[$stock->getSize()] = $stock->getQuantity();
+            }
+            foreach ($sizes as $size) {
+                if (!isset($productSizes[$size]) || $productSizes[$size] < 2) {
+                    $errors[] = sprintf(
+                        'Produit "%s" a un stock insuffisant pour la taille %s',
+                        $product->getName(),
+                        $size
+                    );
+                }
+            }
+
+            // Vérification mise en avant
+            if ($product->isFeatured()) { // supposé champ boolean 'featured'
+                $featuredProducts[] = $product->getName();
+            }
+
+            // Vérification prix (ici juste un rappel, le prix est unique dans Product)
+            if ($product->getPrice() <= 0) {
+                $errors[] = sprintf(
+                    'Produit "%s" a un prix invalide',
+                    $product->getName()
+                );
+            }
+        }
+
+        return [
+            'errors' => $errors,
+            'featured' => $featuredProducts
+        ];
+    }
 }

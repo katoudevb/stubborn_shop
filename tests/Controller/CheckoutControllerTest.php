@@ -3,41 +3,37 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Service\StripeServices;
-use Stripe\PaymentIntent;
 
 class CheckoutControllerTest extends WebTestCase
 {
-    public function testCheckoutProcess()
+    public function testCheckoutProcess(): void
     {
         $client = static::createClient();
-        $container = $client->getContainer();
 
-        // 1. Faire une requête pour initier la session
-        $client->request('GET', '/');
-
-        // 2. Récupérer la session
-        $session = $client->getRequest()->getSession();
-
-        // 3. Préparer le panier dans la session
-        $session->set('cart', [
-            ['id' => 1, 'quantity' => 2, 'price' => 10.0],
-        ]);
-        $session->save();
-
-        // 4. Accéder à la page checkout
-        $crawler = $client->request('GET', '/checkout');
+        // 1️⃣ Ajouter un produit au panier via la route réelle
+        $client->request('GET', '/cart/add/1');
         $this->assertResponseIsSuccessful();
 
-        // 5. Simuler la confirmation du paiement
+        // Vérification du panier après ajout
+        $session = $client->getRequest()->getSession();
+        $cart = $session->get('cart', []);
+        $this->assertNotEmpty($cart, 'Le panier doit contenir au moins un produit après ajout.');
+        $this->assertEquals(1, $cart[0]['id']);
+        $this->assertEquals(1, $cart[0]['quantity']);
+
+        // 2️⃣ Accéder à la page checkout
+        $client->request('GET', '/checkout');
+        $this->assertResponseIsSuccessful();
+
+        // 3️⃣ Confirmer l'achat
         $client->request('POST', '/checkout/confirm');
         $this->assertResponseRedirects('/order/confirmation');
 
-        // 6. Suivre la redirection et vérifier le message
+        // 4️⃣ Suivre la redirection et vérifier le message de confirmation
         $client->followRedirect();
         $this->assertSelectorTextContains('h1', 'Merci pour votre achat');
 
-        // 7. Vérifier que le panier est vidé après l'achat
-        $this->assertEmpty($session->get('cart'));
+        // 5️⃣ Vérifier que le panier est vidé après l'achat
+        $this->assertEmpty($session->get('cart'), 'Le panier doit être vide après un achat.');
     }
 }

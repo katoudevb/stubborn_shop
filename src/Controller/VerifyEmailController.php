@@ -10,6 +10,8 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\FormLoginAuthenticator;
 
 class VerifyEmailController extends AbstractController
 {
@@ -17,7 +19,9 @@ class VerifyEmailController extends AbstractController
     public function verifyUserEmail(
         Request $request,
         VerifyEmailHelperInterface $verifyEmailHelper,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        UserAuthenticatorInterface $userAuthenticator,
+        FormLoginAuthenticator $authenticator
     ): Response {
         $id = $request->get('id');
 
@@ -42,16 +46,23 @@ class VerifyEmailController extends AbstractController
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $exception->getReason());
 
-            return $this->redirectToRoute('app_register'); // Ou la route que tu souhaites
+            return $this->redirectToRoute('app_register');
         }
 
         // Activation du compte
         $user->setIsVerified(true);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Votre adresse email a bien été confirmée.');
+        // Connexion automatique de l’utilisateur
+        $userAuthenticator->authenticateUser(
+            $user,
+            $authenticator,
+            $request
+        );
 
-        // Redirection vers la page d’accueil (/)
+        $this->addFlash('success', 'Votre adresse email a bien été confirmée et vous êtes connecté.');
+
+        // Redirection vers la page d’accueil
         return $this->redirectToRoute('app_home');
     }
 }

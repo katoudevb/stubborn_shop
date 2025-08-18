@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un produit
+{% endblock %}
+
+{% block body %}
+	<h1>Ajouter un produit</h1>
+
+	{{ form_start(form) }}
+	{{ form_row(form.name) }}
+	{{ form_row(form.price) }}
+	{{ form_row(form.image) }}
+	{{ form_row(form.stock) }}
+	{{ form_row(form.featured) }}
+	<button type="submit">Créer</button>
+	{{ form_end(form) }}
+
+	<a href="{{ path('admin_dashboard') }}" style="display:block; margin-top:10px;">Retour à la liste</a>
+{% endblock %}

@@ -2,25 +2,32 @@
 
 namespace App\Tests\Service;
 
+use App\Service\StripeService;
+use App\Factory\StripePaymentIntentFactory;
 use PHPUnit\Framework\TestCase;
-use App\Service\StripeServices;
 use Stripe\PaymentIntent;
+use Stripe\Exception\ApiErrorException;
 
-class StripeServicesTest extends TestCase
+class StripeServiceTest extends TestCase
 {
-    public function testCreatePaymentIntent()
+    public function testSimulatePaymentReturnsArray()
     {
+        // Création d'un mock du PaymentIntent
         $mockPaymentIntent = $this->createMock(PaymentIntent::class);
+        $mockPaymentIntent->status = 'succeeded';
+        $mockPaymentIntent->client_secret = 'secret_test';
 
-        // Factory factice qui retourne le mock
-        $factory = function (array $params) use ($mockPaymentIntent) {
-            return $mockPaymentIntent;
-        };
+        // Création d'un mock de la factory
+        $mockFactory = $this->createMock(StripePaymentIntentFactory::class);
+        $mockFactory->method('create')->willReturn($mockPaymentIntent);
 
-        $stripeService = new StripeServices($factory);
+        $service = new StripeService($mockFactory);
 
-        $result = $stripeService->createPaymentIntent(1000);
+        $result = $service->simulatePayment(1000);
 
-        $this->assertSame($mockPaymentIntent, $result);
+        $this->assertIsArray($result);
+        $this->assertEquals('succeeded', $result['status']);
+        $this->assertEquals('Paiement accepté', $result['message']);
+        $this->assertEquals('secret_test', $result['client_secret']);
     }
 }

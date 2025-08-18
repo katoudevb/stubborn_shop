@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\StockRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: StockRepository::class)]
 class Stock
@@ -14,9 +15,11 @@ class Stock
     private ?int $id = null;
 
     #[ORM\Column(length: 5)]
+    #[Assert\Choice(choices: ['S', 'M', 'L', 'XL'], message: 'Taille invalide')]
     private ?string $size = null;
 
     #[ORM\Column]
+    #[Assert\PositiveOrZero(message: 'La quantité doit être ≥ 0')]
     private ?int $quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'stocks')]
@@ -36,7 +39,6 @@ class Stock
     public function setSize(string $size): static
     {
         $this->size = $size;
-
         return $this;
     }
 
@@ -48,7 +50,6 @@ class Stock
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
-
         return $this;
     }
 
@@ -60,7 +61,6 @@ class Stock
     public function setProduct(?Product $product): static
     {
         $this->product = $product;
-
         return $this;
     }
 }

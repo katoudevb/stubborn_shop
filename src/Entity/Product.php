@@ -16,26 +16,20 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column]
-    private ?float $price = null;
+    private float $price;
 
     #[ORM\Column]
-    private ?bool $featured = null;
+    private bool $featured = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    /**
-     * @var Collection<int, Stock>
-     */
     #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'product', orphanRemoval: true)]
     private Collection $stocks;
 
-    /**
-     * @var Collection<int, CartItem>
-     */
     #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'product')]
     private Collection $cartItems;
 
@@ -49,121 +43,109 @@ class Product
     {
         return $this->id;
     }
-
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
-
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
-
-    public function getPrice(): ?float
+    public function getPrice(): float
     {
         return $this->price;
     }
-
     public function setPrice(float $price): static
     {
         $this->price = $price;
-
         return $this;
     }
-
-    public function isFeatured(): ?bool
+    public function isFeatured(): bool
     {
         return $this->featured;
     }
-
     public function setFeatured(bool $featured): static
     {
         $this->featured = $featured;
-
         return $this;
     }
-
     public function getImage(): ?string
     {
         return $this->image;
     }
-
     public function setImage(?string $image): static
     {
         $this->image = $image;
-
         return $this;
     }
+    public function getImageUrl(): string
+    {
+        return $this->image ? '/uploads/' . $this->image : '/images/default-product.png';
+    }
 
-    /**
-     * @return Collection<int, Stock>
-     */
     public function getStocks(): Collection
     {
         return $this->stocks;
     }
-
     public function addStock(Stock $stock): static
     {
         if (!$this->stocks->contains($stock)) {
             $this->stocks->add($stock);
             $stock->setProduct($this);
         }
-
         return $this;
     }
-
     public function removeStock(Stock $stock): static
     {
         if ($this->stocks->removeElement($stock)) {
-            // set the owning side to null (unless already changed)
-            if ($stock->getProduct() === $this) {
-                $stock->setProduct(null);
-            }
+            if ($stock->getProduct() === $this) $stock->setProduct(null);
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, CartItem>
-     */
+    public function getTotalStock(): int
+    {
+        return array_sum($this->stocks->map(fn($stock) => $stock->getQuantity())->toArray());
+    }
+    public function isAvailable(): bool
+    {
+        return $this->getTotalStock() > 0;
+    }
+
     public function getCartItems(): Collection
     {
         return $this->cartItems;
     }
-
     public function addCartItem(CartItem $cartItem): static
     {
         if (!$this->cartItems->contains($cartItem)) {
             $this->cartItems->add($cartItem);
             $cartItem->setProduct($this);
         }
-
         return $this;
     }
-
     public function removeCartItem(CartItem $cartItem): static
     {
         if ($this->cartItems->removeElement($cartItem)) {
-            // set the owning side to null (unless already changed)
-            if ($cartItem->getProduct() === $this) {
-                $cartItem->setProduct(null);
-            }
+            if ($cartItem->getProduct() === $this) $cartItem->setProduct(null);
         }
-
         return $this;
     }
 
-    public function getTotalStock(): int
+    // ------------------------------
+    // Gestion des tailles
+    // ------------------------------
+    public function getAvailableSizes(): array
     {
-        $total = 0;
+        return $this->stocks->map(fn($stock) => $stock->getSize())->toArray();
+    }
+
+    public function getStockBySize(string $size): int
+    {
         foreach ($this->stocks as $stock) {
-            $total += $stock->getQuantity();  // suppose que Stock a getQuantity()
+            if ($stock->getSize() === $size) return $stock->getQuantity();
         }
-        return $total;
+        return 0;
     }
 }

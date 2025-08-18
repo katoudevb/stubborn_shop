@@ -13,7 +13,8 @@ final class HomeController extends AbstractController
     public function index(ProductRepository $productRepository): Response
     {
         // Récupérer les produits mis en avant (ex: avec un champ 'featured' = true)
-        $featuredProducts = $productRepository->findBy(['featured' => true]);
+        $featuredProducts = $productRepository->findBy(['featured' => true], null, 3);
+
 
         // Données statiques infos société (à adapter)
         $companyInfo = [
