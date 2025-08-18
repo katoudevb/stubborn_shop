@@ -1,22 +1,25 @@
 parameters:
     stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
-    uploads_directory: '%kernel.project_dir%/public/uploads'
 
 services:
-    # Factory Stripe
+    # Stripe Factory (pas d'autowiring)
     App\Factory\StripePaymentIntentFactory:
+        class: App\Factory\StripePaymentIntentFactory
         arguments:
             $stripeSecretKey: '%stripe_secret_key%'
+        autowire: false
+        autoconfigure: false
 
-    # Service Stripe
+    # Stripe Service
     App\Service\StripeService:
         arguments:
             $paymentIntentFactory: '@App\Factory\StripePaymentIntentFactory'
 
+    # Autowiring pour le reste
     _defaults:
         autowire: true
         autoconfigure: true
 
     App\:
         resource: '../src/'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests}'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Factory}'
