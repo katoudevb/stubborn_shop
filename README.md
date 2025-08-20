@@ -1,5 +1,5 @@
 # stubborn_shop
-## Installation
+# Installation
 
 - Cloner le repository :
 
@@ -29,7 +29,7 @@ php bin/console doctrine:fixtures:load
 
 symfony server:start
 
-## Configuration
+# Configuration
 
 Base de données : MySQL
 
@@ -55,7 +55,7 @@ Envoi d’e-mails : Symfony Mailer (pour la confirmation d’inscription)
 
 /admin : Back-office (administrateurs uniquement)
 
-## Fonctionnalités
+# Fonctionnalités
 - Page d’accueil /
 
 Menu dynamique selon l’état de connexion
@@ -86,11 +86,11 @@ Panier /cart avec calcul automatique du total, suppression d’articles et valid
 
 Back-office /admin pour ajouter, modifier, supprimer des produits (admin seulement)
 
-## Architecture
+# Architecture
 
 - Symfony 7
 
-# Bundles utilisés :
+## Bundles utilisés :
 
 SecurityBundle pour l’authentification
 
@@ -102,7 +102,7 @@ Symfony Mailer pour envoi d’e-mails
 
 Stripe PHP SDK ou bundle compatible pour paiement
 
-# Organisation du code :
+## Organisation du code :
 
 Controller/ : contrôleurs
 
@@ -118,7 +118,7 @@ templates/ : vues Twig
 
 tests/ : tests unitaires
 
-## Tests
+# Tests
 
 - Tests unitaires pour :
 
