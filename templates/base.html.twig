@@ -1,57 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>
 			{% block title %}Mon site
 			{% endblock %}
 		</title>
-		<style>
-			a.active {
-				font-weight: bold;
-				text-decoration: underline;
-			}
-		</style>
+
+		<!-- Bootstrap CSS -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 	</head>
-	<body>
-		<nav>
-			<ul>
-				<li>
-					<a href="{{ path('app_home') }}" class="{{ is_active_route('app_home') ? 'active' : '' }}">
-						Accueil
-					</a>
-				</li>
+	<body
+		class="d-flex flex-column min-vh-100">
 
-				{% if app.user %}
-					<li>
-						<a href="{{ path('app_shop') }}" class="{{ is_active_route('app_shop', true) ? 'active' : '' }}">
-							Boutique
-						</a>
-					</li>
-					<li>
-						<a href="{{ path('app_cart') }}" class="{{ is_active_route('app_cart', true) ? 'active' : '' }}">
-							Panier
-						</a>
-					</li>
-					<li>
-						<a href="{{ path('app_logout') }}">
-							Se déconnecter
-						</a>
-					</li>
-				{% else %}
-					<li>
-						<a href="{{ path('app_register') }}" class="{{ is_active_route('app_register') ? 'active' : '' }}">
-							S’inscrire
-						</a>
-					</li>
-					<li>
-						<a href="{{ path('app_login') }}" class="{{ is_active_route('app_login') ? 'active' : '' }}">
-							Se connecter
-						</a>
-					</li>
-				{% endif %}
-			</ul>
-		</nav>
+		<!-- Header -->
+		<header class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+			<div class="container">
+				<a class="navbar-brand d-flex flex-column align-items-center" href="{{ path('app_home') }}">
+    				<img src="{{ asset('images/logo.png') }}" alt="Logo" height="50" class="mb-1">
+    				<span class="small">Don't compromise on your look</span>
+				</a>
 
-		{% block body %}{% endblock %}
-	</body>
-</html>
+
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav ms-auto">
+						<li class="nav-item">
+							<a class="nav-link {{ is_active_route('app_home') ? 'active' : '' }}" href="{{ path('app_home') }}">Accueil</a>
+						</li>
+						{% if app.user %}
+							<li class="nav-item">
+								<a class="nav-link {{ is_active_route('app_shop', true) ? 'active' : '' }}" href="{{ path('app_shop') }}">Boutique</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link {{ is_active_route('app_cart', true) ? 'active' : '' }}" href="{{ path('app_cart') }}">Panier</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('app_logout') }}">Se déconnecter</a>
+							</li>
+						{% else %}
+							<li class="nav-item">
+								<a class="nav-link {{ is_active_route('app_register') ? 'active' : '' }}" href="{{ path('app_register') }}">S’inscrire</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link {{ is_active_route('app_login') ? 'active' : '' }}" href="{{ path('app_login') }}">Se connecter</a>
+							</li>
+						{% endif %}
+					</ul>
+				</div>
+			</div>
+		</header>
+
+		<!-- Main -->
+		<main class="flex-grow-1 py-4">
+			<div class="container"> {% block body %}{% endblock %}
+				</div>
+			</main>
+
+			<!-- Footer -->
+			<footer class="bg-light text-center py-3 mt-auto border-top">
+				<p class="mb-0">
+					© 2025
+					{{ companyInfo.name }}
+					-
+					{{ companyInfo.address }}
+					-
+					<a href="mailto:{{ companyInfo.email }}">{{ companyInfo.email }}</a>
+				</p>
+			</footer>
+
+			<!-- Bootstrap JS -->
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		</body>
+	</html>

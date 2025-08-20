@@ -1,0 +1,13 @@
+<div class="product-card">
+	<img src="{{ asset('images/clothes/' ~ product.image) }}" alt="{{ product.name }}">
+
+	<h3>{{ product.name }}</h3>
+	<p>{{ product.price }}
+		€</p>
+
+	{% if app.user %}
+		<a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn-view">
+			Voir
+		</a>
+	{% endif %}
+</div>

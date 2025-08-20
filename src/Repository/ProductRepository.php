@@ -21,15 +21,25 @@ class ProductRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('p');
 
         if ($priceRange) {
-            [$minPrice, $maxPrice] = explode('-', $priceRange);
-            $qb->andWhere('p.price >= :minPrice')
-                ->andWhere('p.price <= :maxPrice')
-                ->setParameter('minPrice', (float)$minPrice)
-                ->setParameter('maxPrice', (float)$maxPrice);
+            $parts = array_map('trim', explode('-', $priceRange));
+            if (count($parts) === 2 && is_numeric($parts[0]) && is_numeric($parts[1])) {
+                $minPrice = (float) $parts[0];
+                $maxPrice = (float) $parts[1];
+
+                // Inclut toutes les valeurs jusqu'à juste avant le prix de la tranche suivante
+                $qb->andWhere('p.price >= :minPrice')
+                    ->andWhere('p.price < :maxPrice')
+                    ->setParameter('minPrice', $minPrice)
+                    ->setParameter('maxPrice', $maxPrice + 0.01);
+            }
         }
+
+        $qb->orderBy('p.price', 'ASC');
 
         return $qb->getQuery()->getResult();
     }
+
+
 
     /**
      * Vérifie toutes les règles du devoir :
@@ -64,11 +74,11 @@ class ProductRepository extends ServiceEntityRepository
             }
 
             // Vérification mise en avant
-            if ($product->isFeatured()) { // supposé champ boolean 'featured'
+            if ($product->isFeatured()) {
                 $featuredProducts[] = $product->getName();
             }
 
-            // Vérification prix (ici juste un rappel, le prix est unique dans Product)
+            // Vérification prix
             if ($product->getPrice() <= 0) {
                 $errors[] = sprintf(
                     'Produit "%s" a un prix invalide',

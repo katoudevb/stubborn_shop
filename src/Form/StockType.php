@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Stock;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,20 +18,26 @@ class StockType extends AbstractType
             ->add('size', ChoiceType::class, [
                 'label' => 'Taille',
                 'choices' => [
+                    'XS' => 'XS',
                     'S' => 'S',
                     'M' => 'M',
                     'L' => 'L',
                     'XL' => 'XL',
                 ],
+                'placeholder' => 'Sélectionnez une taille',
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'La taille est obligatoire.'])
+                    new Assert\NotBlank(['message' => 'La taille est obligatoire.']),
+                    new Assert\Choice([
+                        'choices' => ['XS','S', 'M', 'L', 'XL'],
+                        'message' => 'Taille invalide. Choisissez S, M, L ou XL.'
+                    ])
                 ]
             ])
-            ->add('quantity', NumberType::class, [
+            ->add('quantity', IntegerType::class, [
                 'label' => 'Quantité',
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'La quantité est obligatoire.']),
-                    new Assert\Positive(['message' => 'La quantité doit être positive.'])
+                    new Assert\PositiveOrZero(['message' => 'La quantité doit être ≥ 0.'])
                 ]
             ]);
     }
@@ -39,7 +45,7 @@ class StockType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Stock::class
+            'data_class' => Stock::class,
         ]);
     }
 }

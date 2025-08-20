@@ -1,0 +1,7 @@
+<div class="product-grid">
+	{% for product in featuredProducts %}
+		{% include 'home/_product_card.html.twig' with {'product': product, 'showAddButton': true} %}
+	{% else %}
+		<p style="text-align:center;">Aucun produit mis en avant actuellement.</p>
+	{% endfor %}
+</div>
