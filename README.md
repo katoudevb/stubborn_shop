@@ -90,7 +90,7 @@ Back-office /admin pour ajouter, modifier, supprimer des produits (admin seuleme
 
 - Symfony 7
 
-Bundles utilisés :
+# Bundles utilisés :
 
 SecurityBundle pour l’authentification
 
@@ -102,7 +102,7 @@ Symfony Mailer pour envoi d’e-mails
 
 Stripe PHP SDK ou bundle compatible pour paiement
 
-Organisation du code :
+# Organisation du code :
 
 Controller/ : contrôleurs
 
