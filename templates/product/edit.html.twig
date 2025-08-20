@@ -1,11 +1,9 @@
-{# templates/product/new.html.twig #}
-
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter un produit{% endblock %}
+{% block title %}Modifier le produit{% endblock %}
 
 {% block body %}
-<h1>Ajouter un nouveau produit</h1>
+<h1>Modifier le produit</h1>
 
 {# Messages flash #}
 {% for label, messages in app.flashes %}
@@ -39,6 +37,9 @@
 <div class="mb-3">
     {{ form_label(form.image) }}
     {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+    {% if product.image %}
+        <img src="{{ asset('uploads/' ~ product.image) }}" alt="{{ product.name }}" style="max-width:150px; margin-top:10px;">
+    {% endif %}
     {{ form_errors(form.image) }}
 </div>
 
@@ -57,10 +58,10 @@
     {{ form_errors(form.stocks) }}
 </div>
 
-<button type="submit" class="btn btn-primary">Ajouter</button>
+{# Submit et token CSRF #}
+{{ form_widget(form._token) }}
+<button type="submit" class="btn btn-primary">Modifier</button>
 
-{# Rend les champs cachés restants (token CSRF, etc.) #}
-{{ form_rest(form) }}
 {{ form_end(form) }}
 
 {# Script JS pour ajouter/supprimer dynamiquement des stocks #}
@@ -68,15 +69,16 @@
 document.addEventListener('DOMContentLoaded', function(){
     const wrapper = document.getElementById('stocks-wrapper');
     const addButton = document.getElementById('add-stock');
-
     let index = wrapper.querySelectorAll('.stock-item').length;
 
     addButton.addEventListener('click', () => {
         const prototype = wrapper.dataset.prototype;
-        const newForm = prototype.replace(/__name__/g, index);
+        const newFormHtml = prototype.replace(/__name__/g, index);
+
         const div = document.createElement('div');
         div.classList.add('d-flex','gap-2','mb-2','align-items-center','stock-item');
-        div.innerHTML = newForm + '<button type="button" class="btn btn-danger btn-sm remove-stock">Supprimer</button>';
+        div.innerHTML = newFormHtml + '<button type="button" class="btn btn-danger btn-sm remove-stock">Supprimer</button>';
+
         wrapper.appendChild(div);
         index++;
     });

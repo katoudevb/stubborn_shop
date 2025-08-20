@@ -4,33 +4,53 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Inscription</h1>
+	<div class="d-flex justify-content-center align-items-center">
+		<div class="card shadow-lg p-4 mt-5 w-100" style="max-width: 500px;">
+			<div class="card-body">
+				<h2 class="card-title text-center mb-4">S'inscrire</h2>
 
-	{# Affichage des messages flash #}
-	{% for label, messages in app.flashes %}
-		{% for message in messages %}
-			<div class="flash-{{ label }}">
-				{{ message }}
+				{{ form_start(registrationForm) }}
+
+				<div class="mb-3">
+					{{ form_label(registrationForm.name) }}
+					{{ form_widget(registrationForm.name, {'attr': {'class': 'form-control'}}) }}
+					{{ form_errors(registrationForm.name) }}
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(registrationForm.email) }}
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+					{{ form_errors(registrationForm.email) }}
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(registrationForm.deliveryAddress) }}
+					{{ form_widget(registrationForm.deliveryAddress, {'attr': {'class': 'form-control'}}) }}
+					{{ form_errors(registrationForm.deliveryAddress) }}
+				</div>
+
+
+				<div class="mb-3">
+					{{ form_label(registrationForm.plainPassword.first) }}
+					{{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+					{{ form_errors(registrationForm.plainPassword.first) }}
+				</div>
+
+				<div class="mb-3">
+					{{ form_label(registrationForm.plainPassword.second) }}
+					{{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+					{{ form_errors(registrationForm.plainPassword.second) }}
+				</div>
+
+				<button type="submit" class="btn btn-primary w-100">S’inscrire</button>
+
+				{{ form_end(registrationForm) }}
+
+				<p class="mt-3 text-center">
+					Déjà inscrit ?
+					<a href="{{ path('app_login') }}">Connexion</a>
+				</p>
 			</div>
-		{% endfor %}
-	{% endfor %}
-
-	{# Formulaire d'inscription #}
-	{{ form_start(registrationForm) }}
-
-	{{ form_row(registrationForm.email) }}
-	{{ form_row(registrationForm.name) }}
-	{{ form_row(registrationForm.deliveryAddress) }}
-	{{ form_row(registrationForm.plainPassword.first) }}
-	{{ form_row(registrationForm.plainPassword.second) }}
-
-	<button type="submit">S’inscrire</button>
-
-	{{ form_end(registrationForm) }}
-
-	{# Lien vers la page de connexion #}
-	<p>Déjà inscrit ?
-		<a href="{{ path('app_login') }}">Connectez-vous</a>
-	</p>
-
+		</div>
+	</div>
 {% endblock %}

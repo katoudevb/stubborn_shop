@@ -27,7 +27,12 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\OneToMany(targetEntity: Stock::class, mappedBy: 'product', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: Stock::class,
+        mappedBy: 'product',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
     private Collection $stocks;
 
     #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'product')]
@@ -43,51 +48,61 @@ class Product
     {
         return $this->id;
     }
+
     public function getName(): string
     {
         return $this->name;
     }
+
     public function setName(string $name): static
     {
         $this->name = $name;
         return $this;
     }
+
     public function getPrice(): float
     {
         return $this->price;
     }
+
     public function setPrice(float $price): static
     {
         $this->price = $price;
         return $this;
     }
+
     public function isFeatured(): bool
     {
         return $this->featured;
     }
+
     public function setFeatured(bool $featured): static
     {
         $this->featured = $featured;
         return $this;
     }
+
     public function getImage(): ?string
     {
         return $this->image;
     }
+
     public function setImage(?string $image): static
     {
         $this->image = $image;
         return $this;
     }
+
     public function getImageUrl(): string
     {
-        return $this->image ? '/uploads/' . $this->image : '/images/default-product.png';
+        return $this->image ? '/images/clothes/' . $this->image : '/images/default-product.png';
     }
 
     public function getStocks(): Collection
     {
         return $this->stocks;
     }
+
     public function addStock(Stock $stock): static
     {
         if (!$this->stocks->contains($stock)) {
@@ -96,10 +111,13 @@ class Product
         }
         return $this;
     }
+
     public function removeStock(Stock $stock): static
     {
         if ($this->stocks->removeElement($stock)) {
-            if ($stock->getProduct() === $this) $stock->setProduct(null);
+            if ($stock->getProduct() === $this) {
+                $stock->setProduct(null);
+            }
         }
         return $this;
     }
@@ -108,6 +126,7 @@ class Product
     {
         return array_sum($this->stocks->map(fn($stock) => $stock->getQuantity())->toArray());
     }
+
     public function isAvailable(): bool
     {
         return $this->getTotalStock() > 0;
@@ -117,6 +136,7 @@ class Product
     {
         return $this->cartItems;
     }
+
     public function addCartItem(CartItem $cartItem): static
     {
         if (!$this->cartItems->contains($cartItem)) {
@@ -125,26 +145,32 @@ class Product
         }
         return $this;
     }
+
     public function removeCartItem(CartItem $cartItem): static
     {
         if ($this->cartItems->removeElement($cartItem)) {
-            if ($cartItem->getProduct() === $this) $cartItem->setProduct(null);
+            if ($cartItem->getProduct() === $this) {
+                $cartItem->setProduct(null);
+            }
         }
         return $this;
     }
 
-    // ------------------------------
-    // Gestion des tailles
-    // ------------------------------
     public function getAvailableSizes(): array
     {
-        return $this->stocks->map(fn($stock) => $stock->getSize())->toArray();
+        $sizes = [];
+        foreach ($this->stocks as $stock) {
+            $sizes[] = $stock->getSize();
+        }
+        return array_unique($sizes);
     }
 
     public function getStockBySize(string $size): int
     {
         foreach ($this->stocks as $stock) {
-            if ($stock->getSize() === $size) return $stock->getQuantity();
+            if ($stock->getSize() === $size) {
+                return $stock->getQuantity();
+            }
         }
         return 0;
     }

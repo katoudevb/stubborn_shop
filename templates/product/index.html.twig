@@ -1,61 +1,56 @@
-<h1>Produits</h1>
+{% extends 'base.html.twig' %}
 
-{# Formulaire de filtrage dynamique par prix #}
-<form method="get" action="{{ path('app_products') }}" style="margin-bottom: 1em;">
-	<label for="minPrice">Prix minimum :</label>
-	<input type="number" id="minPrice" name="price_range_min" value="{{ selectedMin|default('') }}" min="0" step="0.01">
+{% block title %}Produits
+{% endblock %}
 
-	<label for="maxPrice">Prix maximum :</label>
-	<input type="number" id="maxPrice" name="price_range_max" value="{{ selectedMax|default('') }}" min="0" step="0.01">
+{% block body %}
+	<div
+		style="display: flex; gap: 2em;">
 
-	<button type="submit">Filtrer</button>
-	<a href="{{ path('app_products') }}" style="margin-left: 1em;">Réinitialiser</a>
-</form>
+		{# Colonne gauche : filtrage #}
+		<div style="flex: 0 0 180px; border: 1px solid #ccc; padding: 1em; border-radius: 5px; max-height: 300px; overflow-y: auto;">
+			<h3>Fourchette de prix</h3>
 
-{# Préparer les valeurs sélectionnées côté Twig #}
-{% if selectedRange %}
-	{% set parts = selectedRange|split('-') %}
-	{% set selectedMin = parts[0] %}
-	{% set selectedMax = parts[1] %}
-{% endif %}
+			<form method="get" action="{{ path('app_products') }}">
+				{% set ranges = {
+    '10-29.99': '10€ à 29€',
+    '30-35': '30€ à 35€',
+    '35-50': '35€ à 50€'
+} %}
 
-{# Lien vers l’accueil #}
-<p>
-	<a href="{{ path('app_home') }}">Retour à l’accueil</a>
-</p>
 
-{# Affichage des produits #}
-<ul style="list-style: none; padding: 0;">
-	{% for product in products %}
-		<li
-			style="margin-bottom: 2em; border: 1px solid #ccc; padding: 1em; border-radius: 5px;">
-			{# Image du produit #}
-			<img
-			src="{{ product.image }}" alt="{{ product.name }}" style="max-width: 150px; display: block; margin-bottom: 0.5em;">
+				{% for value, label in ranges %}
+					<div>
+						<input type="radio" id="range_{{ loop.index }}" name="price_range" value="{{ value }}" {% if selectedRange is defined and selectedRange == value %} checked {% endif %}>
+						<label for="range_{{ loop.index }}">{{ label }}</label>
+					</div>
+				{% endfor %}
 
-			{# Nom et prix #}
-			<strong>{{ product.name }}</strong>
-			-
-			{{ product.price }}€
+				<button type="submit" style="margin-top: 1em;">Filtrer</button>
+			</form>
 
-			{# Bouton "Voir" #}
-			<div style="margin-top: 0.5em;">
-				<a href="{{ path('app_product_show', {'id': product.id}) }}">
-					<button type="button">Voir</button>
-				</a>
-			</div>
-		</li>
-	{% else %}
-		<li>Aucun produit trouvé pour cette fourchette de prix.</li>
-	{% endfor %}
-</ul>
+			{# Réinitialisation : simple lien vers la page sans paramètre GET #}
+			<a href="{{ path('app_products') }}" style="display: block; margin-top: 0.5em;">Réinitialiser</a>
+		</div>
 
-{# Nombre total d'articles dans le panier (optionnel) #}
-{% set cart = app.session.get('cart', {}) %}
-{% set totalQuantity = cart|reduce((carry, item) => carry + item, 0) %}
-{% if totalQuantity > 0 %}
-	<p style="margin-top: 1em; font-weight: bold;">
-		Articles dans le panier :
-		{{ totalQuantity }}
-	</p>
-{% endif %}
+		{# Colonne droite : produits en grille #}
+		<div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1em;">
+			{% if products is not empty %}
+				{% for product in products %}
+					<div style="border: 1px solid #ccc; padding: 1em; border-radius: 5px; text-align: center;">
+						<img src="{{ asset('images/clothes/' ~ product.image) }}" alt="{{ product.name }}" style="max-width: 100%; height: auto; margin-bottom: 0.5em;">
+						<strong>{{ product.name }}</strong><br>
+						{{ product.price }}€<br>
+						<a href="{{ path('app_product_show', {'id': product.id}) }}" style="display: inline-block; margin-top: 0.5em; padding: 0.3em 0.6em;
+																																								                              background-color: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+							Voir
+						</a>
+					</div>
+				{% endfor %}
+			{% else %}
+				<p>Aucun produit trouvé pour cette fourchette de prix.</p>
+			{% endif %}
+		</div>
+
+	</div>
+{% endblock %}

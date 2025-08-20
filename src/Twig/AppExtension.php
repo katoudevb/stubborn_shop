@@ -3,10 +3,11 @@
 namespace App\Twig;
 
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\GlobalsInterface;
 use Twig\TwigFunction;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class AppExtension extends AbstractExtension
+class AppExtension extends AbstractExtension implements GlobalsInterface
 {
     private $requestStack;
 
@@ -15,6 +16,7 @@ class AppExtension extends AbstractExtension
         $this->requestStack = $requestStack;
     }
 
+    // Déclare la fonction Twig existante
     public function getFunctions(): array
     {
         return [
@@ -22,6 +24,20 @@ class AppExtension extends AbstractExtension
         ];
     }
 
+    // Déclare les variables globales Twig
+    public function getGlobals(): array
+    {
+        return [
+            'companyInfo' => [
+                'name' => 'Stubborn',
+                'address' => 'Piccadilly Circus, London W1J 0DA, Royaume-Uni',
+                'email' => 'stubborn@blabla.com',
+                'slogan' => "Don't compromise on your look"
+            ]
+        ];
+    }
+
+    // Méthode existante
     public function isActiveRoute(string $routeName, bool $startsWith = false): bool
     {
         $currentRoute = $this->requestStack->getCurrentRequest()->attributes->get('_route');

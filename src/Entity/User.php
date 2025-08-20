@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\Table(name: "user", uniqueConstraints: [new ORM\UniqueConstraint(name: "UNIQ_IDENTIFIER_EMAIL", columns: ["email"])])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -20,28 +20,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: "L'email ne peut pas être vide")]
+    #[Assert\Email(message: "L'email '{{ value }}' n'est pas valide")]
     private ?string $email = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom ne peut pas être vide")]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "L'adresse de livraison ne peut pas être vide")]
+    #[Assert\Length(
+        min: 5,
+        max: 255,
+        minMessage: "L’adresse de livraison doit contenir au moins {{ limit }} caractères"
+    )]
     private ?string $deliveryAddress = null;
 
     #[ORM\Column]
     private bool $isVerified = false;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $activationToken = null;
 
     /**
      * @var Collection<int, Cart>
@@ -49,9 +55,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Cart::class, mappedBy: 'user')]
     private Collection $carts;
 
-    /**
-     * Mot de passe en clair (non persisté)
-     */
     #[Assert\NotBlank(message: 'Le mot de passe ne peut pas être vide')]
     #[Assert\Length(min: 6, minMessage: 'Le mot de passe doit contenir au moins 6 caractères')]
     private ?string $plainPassword = null;
@@ -60,6 +63,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->carts = new ArrayCollection();
     }
+
+    // ------------------- GETTERS & SETTERS -------------------
 
     public function getId(): ?int
     {
@@ -152,6 +157,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getActivationToken(): ?string
+    {
+        return $this->activationToken;
+    }
+
+    public function setActivationToken(?string $token): static
+    {
+        $this->activationToken = $token;
+        return $this;
+    }
+
+    public function generateActivationToken(): static
+    {
+        $this->activationToken = bin2hex(random_bytes(32));
         return $this;
     }
 
