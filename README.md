@@ -35,6 +35,10 @@ Base de données : MySQL
 
 Authentification : Symfony Security Bundle, avec rôles ROLE_USER et ROLE_ADMIN.
 
+user :root
+mp : (vide)
+nom bdd: stubborn_db
+
 Paiement : Stripe (mode développement)
 
 Envoi d’e-mails : Symfony Mailer (pour la confirmation d’inscription)
