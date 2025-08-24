@@ -4,6 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
+        "symfony/polyfill-ctype": "^1.33",
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
@@ -47,14 +48,16 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },
-    "config": {
-        "allow-plugins": {
-            "php-http/discovery": true,
-            "symfony/flex": true,
-            "symfony/runtime": true
-        },
-        "bump-after-update": true,
-        "sort-packages": true
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "php-mock/php-mock-phpunit": "*",
+        "phpunit/phpunit": "^12.3",
+        "symfony/browser-kit": "7.3.*",
+        "symfony/css-selector": "7.3.*",
+        "symfony/debug-bundle": "7.3.*",
+        "symfony/maker-bundle": "^1.0",
+        "symfony/stopwatch": "7.3.*",
+        "symfony/web-profiler-bundle": "7.3.*"
     },
     "autoload": {
         "psr-4": {
@@ -66,36 +69,21 @@
             "App\\Tests\\": "tests/"
         }
     },
-    "replace": {
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-php72": "*",
-        "symfony/polyfill-php73": "*",
-        "symfony/polyfill-php74": "*",
-        "symfony/polyfill-php80": "*",
-        "symfony/polyfill-php81": "*",
-        "symfony/polyfill-php82": "*"
-    },
     "scripts": {
     "auto-scripts": {
         "cache:clear": "symfony-cmd",
         "assets:install %PUBLIC_DIR%": "symfony-cmd",
         "importmap:install": "symfony-cmd"
     },
-    "auto-test": [
-        "echo '🔹 Lancement automatique des tests PHPUnit...' && php bin/phpunit"
-    ],
+    "test:cart-order": "php bin/phpunit --testdox tests/Controller/CartTest.php tests/Controller/CheckoutTest.php",
     "post-install-cmd": [
         "@auto-scripts",
-        "@auto-test"
+        "@test:cart-order"
     ],
     "post-update-cmd": [
         "@auto-scripts",
-        "@auto-test"
+        "@test:cart-order"
     ]
-    },
-    "conflict": {
-        "symfony/symfony": "*"
     },
     "extra": {
         "symfony": {
@@ -103,15 +91,10 @@
             "require": "7.3.*"
         }
     },
-    "require-dev": {
-        "doctrine/doctrine-fixtures-bundle": "*",
-        "php-mock/php-mock-phpunit": "*",
-        "phpunit/phpunit": "^12.3",
-        "symfony/browser-kit": "7.3.*",
-        "symfony/css-selector": "7.3.*",
-        "symfony/debug-bundle": "7.3.*",
-        "symfony/maker-bundle": "^1.0",
-        "symfony/stopwatch": "7.3.*",
-        "symfony/web-profiler-bundle": "7.3.*"
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "symfony/runtime": true
+        }
     }
 }

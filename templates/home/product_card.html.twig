@@ -1,13 +1,13 @@
 <div class="product-card">
-	<img src="{{ asset('images/clothes/' ~ product.image) }}" alt="{{ product.name }}">
+    <img src="{{ asset('images/clothes/' ~ (product.imageFilename|default('default.jpg'))) }}"
+     alt="{{ product.name|default('Produit') }}"
 
-	<h3>{{ product.name }}</h3>
-	<p>{{ product.price }}
-		€</p>
+    <h3>{{ product.name|default('Produit') }}</h3>
+    <p>{{ product.price|default('0') }} €</p>
 
-	{% if app.user %}
-		<a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn-view">
-			Voir
-		</a>
-	{% endif %}
+    {% if app.user %}
+        <a href="{{ path('app_product_show', {'id': product.id|default(0)}) }}" class="btn-view">
+            Voir
+        </a>
+    {% endif %}
 </div>

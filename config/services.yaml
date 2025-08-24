@@ -1,6 +1,7 @@
 parameters:
     stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
-    ploads_directory: '%kernel.project_dir%/public/images/clothes'
+    uploads_directory: '%kernel.project_dir%/public/images/clothes'
+
 
 services:
     # Stripe Factory (pas d'autowiring)

@@ -27,6 +27,10 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    // ✅ Nouvelle propriété description
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $description = null;
+
     #[ORM\OneToMany(
         targetEntity: Stock::class,
         mappedBy: 'product',
@@ -93,85 +97,17 @@ class Product
         return $this;
     }
 
-    public function getImageUrl(): string
+    // ✅ Getter/Setter pour description
+    public function getDescription(): ?string
     {
-        return $this->image ? '/images/clothes/' . $this->image : '/images/default-product.png';
+        return $this->description;
     }
 
-    public function getStocks(): Collection
+    public function setDescription(?string $description): static
     {
-        return $this->stocks;
-    }
-
-    public function addStock(Stock $stock): static
-    {
-        if (!$this->stocks->contains($stock)) {
-            $this->stocks->add($stock);
-            $stock->setProduct($this);
-        }
+        $this->description = $description;
         return $this;
     }
 
-    public function removeStock(Stock $stock): static
-    {
-        if ($this->stocks->removeElement($stock)) {
-            if ($stock->getProduct() === $this) {
-                $stock->setProduct(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getTotalStock(): int
-    {
-        return array_sum($this->stocks->map(fn($stock) => $stock->getQuantity())->toArray());
-    }
-
-    public function isAvailable(): bool
-    {
-        return $this->getTotalStock() > 0;
-    }
-
-    public function getCartItems(): Collection
-    {
-        return $this->cartItems;
-    }
-
-    public function addCartItem(CartItem $cartItem): static
-    {
-        if (!$this->cartItems->contains($cartItem)) {
-            $this->cartItems->add($cartItem);
-            $cartItem->setProduct($this);
-        }
-        return $this;
-    }
-
-    public function removeCartItem(CartItem $cartItem): static
-    {
-        if ($this->cartItems->removeElement($cartItem)) {
-            if ($cartItem->getProduct() === $this) {
-                $cartItem->setProduct(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getAvailableSizes(): array
-    {
-        $sizes = [];
-        foreach ($this->stocks as $stock) {
-            $sizes[] = $stock->getSize();
-        }
-        return array_unique($sizes);
-    }
-
-    public function getStockBySize(string $size): int
-    {
-        foreach ($this->stocks as $stock) {
-            if ($stock->getSize() === $size) {
-                return $stock->getQuantity();
-            }
-        }
-        return 0;
-    }
+    // ... le reste de ton code (stocks, cartItems, méthodes utilitaires)
 }

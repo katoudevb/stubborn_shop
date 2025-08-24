@@ -13,6 +13,30 @@ class CartService
     public function __construct(private EntityManagerInterface $em) {}
 
     /**
+     * Ajoute un article au panier d’un utilisateur
+     */
+    public function addItem(User $user, int $productId, int $quantity = 1): void
+    {
+    $cartRepo = $this->em->getRepository(Cart::class);
+    $existingItem = $cartRepo->findOneBy(['user' => $user, 'product' => $productId]);
+
+    if ($existingItem) {
+        // si déjà présent, on augmente la quantité
+        $existingItem->setQuantity($existingItem->getQuantity() + $quantity);
+        $this->em->persist($existingItem);
+    } else {
+        // sinon on crée un nouvel item
+        $cartItem = new Cart();
+        $cartItem->setUser($user);
+        $cartItem->setProduct($this->em->getReference('App\Entity\Product', $productId));
+        $cartItem->setQuantity($quantity);
+        $this->em->persist($cartItem);
+    }
+
+    $this->em->flush();
+    }
+
+    /**
      * Calcule le total du panier d'un utilisateur
      */
     public function calculateTotal(User $user): float

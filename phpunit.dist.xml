@@ -17,7 +17,7 @@
         <server name="SHELL_VERBOSITY" value="-1" />
 
         <!-- ICI on définit l'URL de connexion spécifique pour les tests -->
-        <server name="DATABASE_URL" value="mysql://root:@127.0.0.1:3306/stubborn_test_test_test_test?serverVersion=10.4.28-MariaDB&amp;charset=utf8mb4" />
+        <server name="DATABASE_URL" value="mysql://root:@127.0.0.1:3306/stubborn_test?serverVersion=10.4.28-MariaDB&amp;charset=utf8mb4" />
     </php>
 
     <testsuites>

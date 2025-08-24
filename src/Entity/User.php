@@ -11,8 +11,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: "user", uniqueConstraints: [new ORM\UniqueConstraint(name: "UNIQ_IDENTIFIER_EMAIL", columns: ["email"])])]
+#[ORM\Table(name: "user")]
+#[ORM\UniqueConstraint(name: "UNIQ_IDENTIFIER_EMAIL", columns: ["email"])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
+
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -34,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "Le nom ne peut pas être vide")]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 512)]
     #[Assert\NotBlank(message: "L'adresse de livraison ne peut pas être vide")]
     #[Assert\Length(
         min: 5,

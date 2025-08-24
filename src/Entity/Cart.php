@@ -31,7 +31,12 @@ class Cart
     /**
      * @var Collection<int, CartItem>
      */
-    #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'cart', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        targetEntity: CartItem::class,
+        mappedBy: 'cart',
+        orphanRemoval: true,
+        cascade: ['persist', 'remove']  // ✅ correction ajoutée
+    )]
     private Collection $cartItems;
 
     public function __construct()
