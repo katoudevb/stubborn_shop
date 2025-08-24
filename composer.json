@@ -77,22 +77,22 @@
         "symfony/polyfill-php82": "*"
     },
     "scripts": {
-        "auto-scripts": {
-            "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd",
-            "importmap:install": "symfony-cmd"
-        },
-        "auto-test": [
-            "php bin/phpunit"
-        ],
-        "post-install-cmd": [
-            "@auto-scripts",
-            "@auto-test"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts",
-            "@auto-test"
-        ]
+    "auto-scripts": {
+        "cache:clear": "symfony-cmd",
+        "assets:install %PUBLIC_DIR%": "symfony-cmd",
+        "importmap:install": "symfony-cmd"
+    },
+    "auto-test": [
+        "echo '🔹 Lancement automatique des tests PHPUnit...' && php bin/phpunit"
+    ],
+    "post-install-cmd": [
+        "@auto-scripts",
+        "@auto-test"
+    ],
+    "post-update-cmd": [
+        "@auto-scripts",
+        "@auto-test"
+    ]
     },
     "conflict": {
         "symfony/symfony": "*"
