@@ -22,11 +22,12 @@
             <h3>Taille</h3>
 
             {% if availableSizes is not empty %}
-                <form method="post">
+                <form method="post" action="{{ path('app_product_add_to_cart', {'id': product.id}) }}">
                     <label for="size">Choisir la taille :</label>
                     <select name="size" id="size" required style="margin-bottom:1em; display:block;">
                         {% for size in availableSizes %}
-                            {% set stockAvailable = product.getStockBySize(size) - (app.session.get('cart')[product.id][size]|default(0)) %}
+                            {% set cartQuantity = app.session.get('cart')[product.id ~ '_' ~ size].quantity|default(0) %}
+                            {% set stockAvailable = product.getStockBySize(size) - cartQuantity %}
                             <option value="{{ size }}" {% if stockAvailable <= 0 %}disabled{% endif %}>
                                 {{ size }} {% if stockAvailable > 0 %} ({{ stockAvailable }} en stock) {% else %} (Rupture) {% endif %}
                             </option>
@@ -40,11 +41,11 @@
             {% endif %}
         </div>
 
+        <!-- Formulaire suppression produit (back-office) -->
         <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
             <button type="submit" class="btn btn-danger">Supprimer</button>
         </form>
-
 
         <!-- Lien retour -->
         <p><a href="{{ path('app_products') }}">Retour aux produits</a></p>

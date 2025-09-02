@@ -2,70 +2,70 @@
 
 namespace App\Controller;
 
-use App\Entity\Cart;
-use App\Entity\CartItem;
 use App\Entity\Product;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\CartService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CartController extends AbstractController
 {
-    #[Route('/cart/add/{id}', name: 'cart_add')]
-    public function add(int $id, EntityManagerInterface $em): Response
+    #[Route('/cart', name: 'cart')]
+    public function index(CartService $cartService): Response
     {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('app_login');
-        }
+        $cartItems = $cartService->getFullCart();
+        $total = $cartService->getTotal();
 
-        $product = $em->getRepository(Product::class)->find($id);
-        if (!$product) {
-            return new Response('Produit introuvable', 404);
-        }
-
-        // Chercher un panier actif ou en créer un
-        $cart = $em->getRepository(Cart::class)->findOneBy([
-            'user' => $user,
-            'isFinalized' => false
+        return $this->render('cart/index.html.twig', [
+            'cartItems' => $cartItems,
+            'total' => $total,
         ]);
+    }
 
-        if (!$cart) {
-            $cart = new Cart();
-            $cart->setUser($user)
-                 ->setIsFinalized(false)
-                 ->setCreatedAt(new \DateTimeImmutable());
-
-            $em->persist($cart);
-            $em->flush(); // on flush pour donner un ID au panier
+    #[Route('/cart/add/{id}', name: 'app_cart_add', methods: ['POST'])]
+    public function add(Product $product, Request $request, CartService $cartService): Response
+    {
+        $size = $request->request->get('size');
+        if (!$size) {
+            $this->addFlash('error', 'Veuillez sélectionner une taille.');
+            return $this->redirectToRoute('app_product_show', ['id' => $product->getId()]);
         }
 
-        // Vérifier si le produit existe déjà dans le panier
-        $existingItem = null;
-        foreach ($cart->getCartItems() as $item) {
-            if ($item->getProduct()->getId() === $product->getId()) {
-                $existingItem = $item;
-                break;
-            }
+        $cartService->add($product, $size);
+        $this->addFlash('success', 'Produit ajouté au panier !');
+
+        return $this->redirectToRoute('cart');
+    }
+
+    #[Route('/cart/remove/{id}', name: 'app_cart_remove', methods: ['POST'])]
+    public function remove(string $id, CartService $cartService, Request $request): Response
+    {
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('remove_cart_item_'.$id, $token)) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('cart');
         }
 
-        if ($existingItem) {
-            $existingItem->setQuantity($existingItem->getQuantity() + 1);
-        } else {
-            $cartItem = new CartItem();
-            $cartItem->setProduct($product)
-                     ->setQuantity(1)
-                     ->setSize('M'); // Taille par défaut
+        $cartService->remove($id);
+        $this->addFlash('success', 'Article supprimé du panier.');
 
-            // 🔹 Gère les deux côtés de la relation
-            $cart->addCartItem($cartItem);
+        return $this->redirectToRoute('cart');
+    }
 
-            $em->persist($cartItem);
+    #[Route('/cart/checkout', name: 'app_cart_checkout', methods: ['POST'])]
+    public function checkout(CartService $cartService, Request $request): Response
+    {
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('checkout_cart', $token)) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('cart');
         }
 
-        $em->flush();
+        // Ici on simule le paiement (Stripe sandbox)
+        $cartService->checkout();
 
-        return new Response('Produit ajouté au panier');
+        $this->addFlash('success', 'Commande finalisée avec succès (mode test).');
+        return $this->redirectToRoute('app_products');
     }
 }
